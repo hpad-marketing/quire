@@ -137,19 +137,23 @@ public class MainActivity extends Activity {
         public void save(String name, String mime, String b64) {
             try {
                 byte[] bytes = Base64.decode(b64, Base64.DEFAULT);
+                // Stickers go to Pictures/Stickers so sticker apps and the other tools can find them; everything else to Downloads/Quire.
+                boolean sticker = name.startsWith("Stickers/");
+                if (sticker) name = name.substring(9);
+                String root = sticker ? Environment.DIRECTORY_PICTURES : Environment.DIRECTORY_DOWNLOADS, sub = sticker ? "Stickers" : "Quire";
                 if (Build.VERSION.SDK_INT >= 29) {
                     ContentValues v = new ContentValues();
                     v.put(MediaStore.MediaColumns.DISPLAY_NAME, name);
                     v.put(MediaStore.MediaColumns.MIME_TYPE, mime);
-                    v.put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS + "/Quire");
-                    Uri uri = getContentResolver().insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, v);
+                    v.put(MediaStore.MediaColumns.RELATIVE_PATH, root + "/" + sub);
+                    Uri uri = getContentResolver().insert(sticker ? MediaStore.Images.Media.EXTERNAL_CONTENT_URI : MediaStore.Downloads.EXTERNAL_CONTENT_URI, v);
                     try (OutputStream o = getContentResolver().openOutputStream(uri)) { o.write(bytes); }
                 } else {
-                    File dir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "Quire");
+                    File dir = new File(Environment.getExternalStoragePublicDirectory(root), sub);
                     dir.mkdirs();
                     try (FileOutputStream o = new FileOutputStream(new File(dir, name))) { o.write(bytes); }
                 }
-                toast("Saved to Downloads/Quire: " + name);
+                toast("Saved to " + root + "/" + sub + ": " + name);
             } catch (Exception e) {
                 toast("Couldn't save " + name);
             }
