@@ -5,6 +5,7 @@
     <application
         android:label="Quire"
         android:icon="@mipmap/ic_launcher"
+        android:roundIcon="@mipmap/ic_launcher_round"
         android:theme="@style/Quire"
         android:hardwareAccelerated="true"
         android:allowBackup="true">
