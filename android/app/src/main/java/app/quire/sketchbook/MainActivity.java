@@ -77,7 +77,7 @@ public class MainActivity extends Activity {
         });
         if (state != null) web.restoreState(state);
         else web.loadUrl("file:///android_asset/www/index.html");
-        immersive();
+        systemBars();
     }
 
     @Override
@@ -105,7 +105,7 @@ public class MainActivity extends Activity {
     @Override
     public void onWindowFocusChanged(boolean focus) {
         super.onWindowFocusChanged(focus);
-        if (focus) immersive();
+        if (focus) systemBars();
     }
 
     @Override
@@ -121,12 +121,15 @@ public class MainActivity extends Activity {
         web.evaluateJavascript("dispatchEvent(new Event('pagehide'))", null);
     }
 
-    private void immersive() {
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
-        getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-                | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN
-                | View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
+    /** Keeps the page clear of the status bar, camera cutout and navigation bar, with bars tinted to match the paper. */
+    private void systemBars() {
+        android.view.Window w = getWindow();
+        w.clearFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS | WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        w.setStatusBarColor(0xFFE9E6DF);
+        w.setNavigationBarColor(0xFFE9E6DF);
+        int f = View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR;
+        if (Build.VERSION.SDK_INT >= 26) f |= View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR;
+        w.getDecorView().setSystemUiVisibility(f);
     }
 
     private void toast(String m) { runOnUiThread(() -> Toast.makeText(this, m, Toast.LENGTH_LONG).show()); }

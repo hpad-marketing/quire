@@ -1,7 +1,8 @@
 <resources>
     <style name="Quire" parent="android:Theme.Material.Light.NoActionBar">
         <item name="android:windowBackground">#e9e6df</item>
-        <item name="android:statusBarColor">#23256B</item>
+        <item name="android:statusBarColor">#e9e6df</item>
         <item name="android:navigationBarColor">#e9e6df</item>
+        <item name="android:windowLightStatusBar">true</item>
     </style>
 </resources>

@@ -240,6 +240,56 @@ html,body{overscroll-behavior:none}
   .touchui .toast{bottom:110px}
 }
 
+/* Phone layout (Android APK and phones): vertical journal grid, one-row tool dock with a colour button, action sheets instead of rows of small links, a big New button in thumb reach. */
+.kebab,.fab,#colorBtn{display:none}
+.phone .kebab{display:grid;place-items:center;width:44px;height:44px;border-radius:50%;color:var(--ink);flex:none}
+.phone .kebab:active{background:var(--shelf-2)}
+.phone .kebab svg{width:22px;height:22px;fill:currentColor}
+.phone .fab{display:flex;align-items:center;gap:8px;position:absolute;right:16px;bottom:calc(20px + env(safe-area-inset-bottom,0px));z-index:5;height:56px;padding:0 22px 0 18px;border-radius:18px;background:var(--ink);color:var(--paper);font-weight:700;font-size:1rem;box-shadow:0 12px 24px -12px rgba(0,0,0,.55)}
+.phone .fab svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round}
+.phone .fab:active{transform:scale(.97)}
+.phone #backupBtn,.phone #restoreBtn,.phone #helpBtn1,.phone #playBtn,.phone #pdfBtn{display:none}
+.phone .bar{min-height:64px;box-sizing:border-box;padding:12px 8px 8px 20px;gap:6px}
+.phone .bar h1{font-size:1.75rem}
+.phone #journalView .bar{padding-left:6px}
+.phone #journalView .bar h1{font-size:1.4rem;flex:0 1 auto}
+.phone #journalView .bar .sub{flex:1;white-space:nowrap}
+.phone #toShelf{width:44px;height:44px;display:grid;place-items:center;padding:0;border-radius:50%;color:var(--ink)}
+.phone #toShelf svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.phone .shelf{display:grid;grid-template-columns:1fr 1fr;align-items:start;align-content:start;gap:26px 18px;overflow-x:hidden;overflow-y:auto;padding:12px 20px 112px;scroll-snap-type:none}
+.phone .book{width:auto;gap:6px}
+.phone .book.new{display:none}
+.phone .book:hover .cover,.phone .book:focus-within .cover{transform:none}
+.phone .cover .lbl{font-size:1.05rem}
+.phone .book .meta{gap:0;padding-left:4px;min-height:40px}
+.phone .book .meta .ghost{display:none}
+.phone .book .meta .kebab{width:40px;height:40px;margin-right:-8px}
+.phone .rename{font-size:1rem}
+.phone .grid{padding:8px 16px 112px;gap:18px 14px}
+.phone .tile{position:relative}
+.phone .tile .acts{display:none}
+.phone .tile .kebab{position:absolute;top:6px;right:6px;width:36px;height:36px;background:rgba(251,250,246,.92);box-shadow:0 1px 5px rgba(0,0,0,.18)}
+.phone .tile:has(.thumb.add){display:none}
+.phone .thumb:hover{transform:none}
+.phone #tplBtn{display:none}
+.phone #pageView .hud.l,.phone #pageView .hud.r{top:calc(10px + env(safe-area-inset-top,0px))}
+.phone #pageView .hud.l{left:max(12px,env(safe-area-inset-left,0px))}.phone #pageView .hud.r{right:max(12px,env(safe-area-inset-right,0px))}
+.phone #toJournal,.phone #pageNo{height:40px;min-height:40px;box-shadow:0 1px 6px rgba(0,0,0,.12)}
+.phone #tray{padding:12px 0 6px}
+.phone #tray #swatches{display:none!important}
+.phone #tray.colors #swatches{display:flex!important;height:66px;align-items:center!important;-webkit-mask:linear-gradient(90deg,#000 calc(100% - 80px),transparent calc(100% - 64px));padding:0 70px 0 16px}
+.phone #tray.colors #tools{display:none!important}
+.phone #tools{padding-right:70px;-webkit-mask:linear-gradient(90deg,transparent,#000 10px,#000 calc(100% - 78px),transparent calc(100% - 62px))}
+.phone #colorBtn{display:grid;place-items:center;position:absolute;right:8px;top:12px;width:56px;height:66px;border-radius:16px}
+.phone #colorBtn i{width:36px;height:36px;border-radius:50%;box-shadow:0 0 0 3px var(--tray),0 0 0 5px var(--line)}
+.phone #colorBtn svg{display:none;width:30px;height:30px;fill:none;stroke:var(--ink);stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.phone #tray.colors #colorBtn i{display:none}.phone #tray.colors #colorBtn svg{display:block}
+.phone #tray.colors #colorBtn{background:var(--shelf-2)}
+.phone .toast{bottom:calc(170px + env(safe-area-inset-bottom,0px))}
+.actScrim{position:fixed;z-index:20}
+.sheet .shTitle{font-weight:700;font-size:.82rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);padding:2px 16px 8px}
+.si.danger{color:var(--danger)}
+
 @media (max-width:700px){#textBar .hint{display:none}}
 @media (max-width:640px){.hud.l{max-width:calc(100vw - 196px);overflow-x:auto;scrollbar-width:none}.hud.l .chip{flex:none}#tools{justify-content:flex-start}.tool{width:38px}.tool svg{width:28px}.sw{width:24px;height:24px}.bar h1{font-size:1.5rem}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
@@ -250,14 +300,16 @@ html,body{overscroll-behavior:none}
   <div class="bar"><h1>Journals</h1>
     <button class="ghost" id="backupBtn" title="Save every journal to one file">Back up</button>
     <button class="ghost" id="restoreBtn" title="Load journals from a backup file">Restore</button>
-    <button class="pill" id="helpBtn1">Shortcuts</button></div>
+    <button class="pill" id="helpBtn1">Shortcuts</button><button class="kebab" id="shelfMore" aria-label="More"><svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg></button></div>
   <div class="shelf" id="shelf"></div>
   <input type="file" id="restoreFile" accept=".json,application/json" hidden>
+  <button class="fab" id="fabJournal"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>New journal</button>
 </section>
 
 <section id="journalView" class="view" hidden>
-  <div class="bar"><button class="ghost" id="toShelf">‹ Journals</button><h1 id="jTitle"></h1><span class="sub" id="jCount"></span><span class="grow"></span><button class="ghost" id="playBtn" title="Play the pages as an animatic or flipbook">Play</button><button class="ghost" id="pdfBtn" title="Save the whole journal as a PDF">Export PDF</button></div>
+  <div class="bar"><button class="ghost" id="toShelf">‹ Journals</button><h1 id="jTitle"></h1><span class="sub" id="jCount"></span><span class="grow"></span><button class="ghost" id="playBtn" title="Play the pages as an animatic or flipbook">Play</button><button class="ghost" id="pdfBtn" title="Save the whole journal as a PDF">Export PDF</button><button class="kebab" id="jMore" aria-label="More"><svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg></button></div>
   <div class="grid" id="grid"></div>
+  <button class="fab" id="fabPage"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>New page</button>
 </section>
 
 <section id="pageView" class="view" hidden>
@@ -278,6 +330,7 @@ html,body{overscroll-behavior:none}
     <span class="sep"></span>
     <button class="ib" id="clipsBtn" title="Clips: saved cut-outs (L)" aria-label="Clips"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="11" height="13" rx="2"/><path d="M9 3h9a2 2 0 0 1 2 2v12"/></svg></button>
     <button class="ib" id="exportBtn" title="Export page (Ctrl+E)"><svg viewBox="0 0 24 24"><path d="M12 15V3m-5 5 5-5 5 5"/><path d="M4 14v5a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-5"/></svg></button>
+    <button id="colorBtn" aria-label="Colours"><i></i><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg></button>
     <button class="ib" id="hideBtn" title="Hide tray (Tab)"><svg viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg></button>
   </div>
   <nav id="appBar" aria-label="Page actions"><button class="ab" id="abBack" aria-label="Pages"><svg viewBox="0 0 24 24"><path d="M15 5 8 12l7 7"/></svg><span>Pages</span></button><button class="ab" id="abUndo" aria-label="Undo"><svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.3-5.6"/><path d="M4 4v4.5h4.5"/></svg><span>Undo</span></button><button class="ab" id="abRedo" aria-label="Redo"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.3-5.6"/><path d="M20 4v4.5h-4.5"/></svg><span>Redo</span></button><button class="ab main" id="abPhoto" aria-label="Add photo"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="15" height="13" rx="2"/><circle cx="8" cy="10" r="1.6"/><path d="m3 16 4.5-4 3.5 3 2.5-2 4.5 4"/><path d="M20 3v6M17 6h6"/></svg><span>Photo</span></button><button class="ab" id="abClips" aria-label="Clips"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="11" height="13" rx="2"/><path d="M9 3h9a2 2 0 0 1 2 2v12"/></svg><span>Clips</span></button><button class="ab" id="abMore" aria-label="More"><svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/></svg><span>More</span></button></nav>
@@ -364,6 +417,7 @@ let W=1600,H=1200;const R=1.5,PAPER='#fbfaf6';
 const PAGES={land:[1600,1200,'Landscape 4:3'],port:[900,1600,'Phone 9:16'],tall:[1200,1600,'Portrait 3:4'],square:[1400,1400,'Square'],wide:[1600,900,'Wide 16:9']};
 const $=id=>document.getElementById(id);
 const TOUCHUI=!!window.QuireAndroid||/Android/i.test(navigator.userAgent)||matchMedia('(pointer:coarse)').matches&&!matchMedia('(any-pointer:fine)').matches;if(TOUCHUI)document.documentElement.classList.add('touchui');
+const PHONE=TOUCHUI&&Math.min(screen.width,screen.height)<600;if(PHONE)document.documentElement.classList.add('phone');
 const COVERS=['#2f5f9e','#c8442f','#3f7d4f','#7a4a8c','#d39a2c','#2a2d36','#b8566f','#3a8a8f'];
 const DEFAULT_SW=['#26252c','#f7f5ef','#c8442f','#e2a33a','#3f7d4f','#2f5f9e','#7a4a8c','#9a958c'];
 const TOOLS=['pencil','pen','felt','marker','wash','blend','diagram','fill','eraser','cut','text'];
@@ -385,7 +439,7 @@ function lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
 let journals=[];let J=null;let pageIdx=0;let page=null;
 let tool=lsGet('q.tool','pen'),lastInkTool=tool==='eraser'?'pen':tool;
 let swatches=lsGet('q.sw',DEFAULT_SW),swIdx=lsGet('q.swi',0);
-let color=swatches[swIdx]||'#26252c';
+let color=swatches[swIdx]||'#26252c';let actClose=null;const KEBAB='<svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg>';
 let penSeen=lsGet('q.pen',false);
 let sizes=lsGet('q.size',{});const sizeK=t=>SIZES[sizes[t]??1];
 let dirty=false;
@@ -630,7 +684,7 @@ function widthFor(t,pr,v){
 /* ---------- views ---------- */
 function show(v){for(const id of ['shelfView','journalView','pageView'])$(id).hidden=id!==v;closeMixer();if(v!=='shelfView'&&!(history.state&&history.state.q))try{history.pushState({q:1},'')}catch(e){}}
 /* Android back button / browser back: close the top-most thing, like Escape. Returns false when there is nothing left to close. */
-window.quireBack=()=>{const open=id=>!$(id).hidden;if(open('shelfView')&&!open('moreScrim')&&!open('coverScrim')&&!open('helpScrim')&&!open('exportScrim')&&!open('playScrim'))return false;if(open('txtEd')){commitText();return true}dispatchEvent(new KeyboardEvent('keydown',{key:'Escape'}));return true};
+window.quireBack=()=>{if(actClose){actClose();return true}const open=id=>!$(id).hidden;if(open('shelfView')&&!open('moreScrim')&&!open('coverScrim')&&!open('helpScrim')&&!open('exportScrim')&&!open('playScrim'))return false;if(open('txtEd')){commitText();return true}dispatchEvent(new KeyboardEvent('keydown',{key:'Escape'}));return true};
 addEventListener('popstate',()=>{if(quireBack()&&$('shelfView').hidden)try{history.pushState({q:1},'')}catch(e){}});
 async function load(){
   journals=await get('journals')||[];
@@ -935,7 +989,9 @@ function renderShelf(){
     const cc=document.createElement('button');cc.className='ghost';cc.textContent='Cover';cc.onclick=()=>openCovers(j);
     const dl=document.createElement('button');dl.className='ghost danger';dl.textContent='Delete';
     dl.onclick=()=>{if(dl.dataset.arm){deleteJournal(j)}else{dl.dataset.arm=1;dl.textContent='Delete?';setTimeout(()=>{delete dl.dataset.arm;dl.textContent='Delete'},2500)}};
-    m.append(s,rn,cc,dl);b.append(cv,m);el.append(b);
+    const kb=document.createElement('button');kb.className='kebab';kb.setAttribute('aria-label','More for '+j.name);kb.innerHTML=KEBAB;
+    kb.onclick=()=>actionSheet([{t:'Rename',fn:()=>renameBook(b,j)},{t:'Change cover',fn:()=>openCovers(j)},{t:'Delete journal',danger:1,fn:()=>actionSheet([{t:'Delete',s:'All '+s.textContent+' are removed for good',danger:1,fn:()=>deleteJournal(j)},{t:'Keep it',fn:()=>{}}],'Delete '+j.name+'?')}],j.name);
+    m.append(s,rn,cc,dl,kb);b.append(cv,m);el.append(b);
   });
   const n=document.createElement('div');n.className='book new';
   const nb=document.createElement('button');nb.className='cover';nb.textContent='+ New journal';
@@ -969,7 +1025,9 @@ async function renderGrid(){
     const dup=document.createElement('button');dup.className='ghost';dup.textContent='Duplicate';dup.onclick=()=>dupPage(i);
     const dl=document.createElement('button');dl.className='ghost danger';dl.textContent='Delete';
     dl.onclick=()=>{if(dl.dataset.arm)delPage(i);else{dl.dataset.arm=1;dl.textContent='Delete?';setTimeout(()=>{delete dl.dataset.arm;dl.textContent='Delete'},2500)}};
-    a.append(dup,dl);t.append(th,a);g.append(t);
+    const kb=document.createElement('button');kb.className='kebab';kb.setAttribute('aria-label','More for page '+(i+1));kb.innerHTML=KEBAB;
+    kb.onclick=()=>actionSheet([{t:'Duplicate page',s:'Adds a copy right after it',fn:()=>dupPage(i)},{t:'Move earlier',fn:()=>movePage(i,i-1)},{t:'Move later',fn:()=>movePage(i,i+1)},{t:'Delete page',danger:1,fn:()=>actionSheet([{t:'Delete',danger:1,fn:()=>delPage(i)},{t:'Keep it',fn:()=>{}}],'Delete page '+(i+1)+'?')}],'Page '+(i+1));
+    a.append(dup,dl);t.append(th,a,kb);g.append(t);
   }
   const t=document.createElement('div');t.className='tile';const ad=document.createElement('button');ad.className='thumb add';ad.textContent='+ New page';
   ad.onclick=()=>{J.pages.push(uid());saveJournals();openPage(J.pages.length-1)};t.append(ad);g.append(t);
@@ -999,6 +1057,7 @@ function stepPlay(d){if(!play)return;play.on=false;play.i=(play.i+d+play.frames.
 $('playPause').onclick=()=>{if(!play)return;play.on=!play.on;if(play.on&&play.i>=play.frames.length-1&&!$('playLoop').checked)play.i=0;showFrame();tick()};
 $('playFps').oninput=()=>{showFps();lsSet('q.fps',+$('playFps').value)};
 $('playClose').onclick=()=>{if(play)clearTimeout(play.t);play=null;$('playScrim').hidden=true};
+async function movePage(i,to){if(to<0||to>=J.pages.length)return;const [id]=J.pages.splice(i,1);J.pages.splice(to,0,id);if(i===0||to===0)J.peek=await get('t:'+J.pages[0])||null;saveJournals();renderGrid();toast('Moved to page '+(to+1))}
 async function dupPage(i){const src=await get('p:'+J.pages[i]);const id=uid();if(src)await put('p:'+id,{strokes:src.strokes.slice(0,src.n),n:src.n,tpl:src.tpl,bg:src.bg});const tu=await get('t:'+J.pages[i]);if(tu)await put('t:'+id,tu);J.pages.splice(i+1,0,id);saveJournals();renderGrid()}
 async function delPage(i){const id=J.pages[i];await del('p:'+id);await del('t:'+id);J.pages.splice(i,1);if(!J.pages.length)J.pages.push(uid());if(i===0)J.peek=await get('t:'+J.pages[0])||null;saveJournals();renderGrid()}
 
@@ -1039,7 +1098,7 @@ function turn(d,noCreate){
 let rect={x:0,y:0,s:1};
 function layout(){
   const st=$('stage').getBoundingClientRect();let top=0,bot=0,right=0;
-  if(TOUCHUI&&!presenting){const land=matchMedia('(orientation:landscape) and (max-height:540px)').matches,tr=$('tray'),ab=$('appBar');top=land?6:64;
+  if(TOUCHUI&&!presenting){const land=matchMedia('(orientation:landscape) and (max-height:540px)').matches,tr=$('tray'),ab=$('appBar');top=land?6:PHONE?60:64;
     bot=(tr.classList.contains('hide')?16:tr.offsetHeight)+(land?0:ab.offsetHeight);if(land)right=ab.offsetWidth}
   const aw=st.width-right,ah=st.height-top-bot,pad=Math.min(TOUCHUI?10:24,aw*.02);
   const s=Math.min((aw-pad*2)/W,(ah-pad*2)/H);
@@ -1055,6 +1114,18 @@ function toPage(e){const r=ink.getBoundingClientRect();return[(e.clientX-r.left)
 let lastWash=0,pan=null,spaceDown=false,placing=null;const stage=$('stage');let cur=null,curId=null,last=null,raf=0;
 const touches=new Map();let gesture=null;let rewind=null;let holdT=0,presSw=null;
 function buzz(ms){try{navigator.vibrate&&navigator.vibrate(ms||8)}catch(e){}}
+// Bottom action sheet for phones: big rows within thumb reach, closes on a tap outside or the back button.
+function actionSheet(items,title){if(actClose)actClose();const sc=document.createElement('div');sc.className='scrim sheetScrim actScrim';const sh=document.createElement('div');sh.className='sheet';sh.setAttribute('role','dialog');sh.innerHTML='<span class="grabber"></span>';
+  if(title){const h=document.createElement('div');h.className='shTitle';h.textContent=title;sh.append(h)}
+  const close=()=>{sc.remove();actClose=null};
+  for(const it of items){const b=document.createElement('button');b.className='si'+(it.danger?' danger':'');b.textContent=it.t;if(it.s){const m=document.createElement('small');m.textContent=it.s;b.append(m)}b.onclick=()=>{close();it.fn()};sh.append(b)}
+  sc.append(sh);sc.onclick=e=>{if(e.target===sc)close()};document.body.append(sc);actClose=close;buzz(6)}
+$('shelfMore').onclick=()=>actionSheet([{t:'Back up all journals',s:'Saves one file to Downloads',fn:()=>$('backupBtn').click()},{t:'Restore from a backup',fn:()=>$('restoreBtn').click()},{t:'Gestures and tips',fn:()=>$('helpBtn1').click()}]);
+$('jMore').onclick=()=>actionSheet([{t:'Play as an animatic',s:'Flip through the pages',fn:()=>$('playBtn').click()},{t:'Export PDF',s:'The whole journal, one page per sheet',fn:()=>$('pdfBtn').click()}],J&&J.name);
+$('fabJournal').onclick=()=>{const n=document.querySelector('.book.new .cover');if(n)n.click()};
+$('fabPage').onclick=()=>{J.pages.push(uid());saveJournals();openPage(J.pages.length-1)};
+$('colorBtn').onclick=()=>{$('tray').classList.toggle('colors');buzz(6)};
+if(PHONE){$('toShelf').innerHTML='<svg viewBox="0 0 24 24"><path d="M15 5 8 12l7 7"/></svg>';$('toShelf').setAttribute('aria-label','Journals')}
 function tilt(e){if(e.pointerType!=='pen')return 0;if(typeof e.altitudeAngle==='number'&&e.altitudeAngle>0)return Math.max(0,Math.min(1,1-e.altitudeAngle/(Math.PI/2)));return Math.min(1,Math.hypot(e.tiltX||0,e.tiltY||0)/70)}
 function pressure(e){if(e.pointerType==='mouse')return .5;const p=e.pressure;return p>0?Math.min(1,p):.5}
 function beginStroke(e,force){
@@ -1216,9 +1287,10 @@ function renderTray(){
     b.onpointerdown=e=>{b.dataset.y=e.clientY};b.onpointerup=e=>{const dy=e.clientY-(+b.dataset.y);if(Math.abs(dy)>18){b.dataset.swiped=1;setTool(k);bumpSize(dy<0?1:-1)}};
     if(k!=='fill'&&k!=='text'){const d=document.createElement('span');d.className='dots';d.innerHTML='<i></i><i></i><i></i>';d.children[sizes[k]??1].className='on';b.append(d)}
     t.append(b)}
+  $('colorBtn').firstChild.style.background=color;
   const s=$('swatches');s.textContent='';
   swatches.forEach((c,i)=>{const b=document.createElement('button');b.className='sw'+(i===swIdx?' on':'');b.style.background=c;b.setAttribute('aria-label','Colour '+(i+1));b.title='Double-click to mix';
-    b.onclick=()=>{if(!$('mixer').hidden&&i!==mixFor){mixIn(c);return}swIdx=i;color=c;lsSet('q.swi',i);if(tool==='eraser')setTool(lastInkTool);else renderTray()};
+    b.onclick=()=>{if(!$('mixer').hidden&&i!==mixFor){mixIn(c);return}swIdx=i;color=c;lsSet('q.swi',i);if(tool==='eraser')setTool(lastInkTool);else renderTray();if(PHONE){buzz(6);setTimeout(()=>$('tray').classList.remove('colors'),160)}};
     b.ondblclick=()=>openMixer(i);
     let lp;b.onpointerdown=()=>{lp=setTimeout(()=>openMixer(i),550)};b.onpointerup=b.onpointerleave=()=>clearTimeout(lp);
     s.append(b)});
