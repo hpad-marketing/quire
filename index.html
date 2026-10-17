@@ -188,6 +188,8 @@ kbd{font-family:ui-monospace,Consolas,monospace;font-size:.8rem;background:var(-
 .present #tray,.present .hud,.present .edge{display:none!important}.present #stage{cursor:none}
 @media (max-width:1100px){#tray{flex-wrap:wrap;justify-content:center;row-gap:6px;overflow:visible;box-sizing:border-box;width:calc(100vw - 16px);padding-top:14px}#tools{flex:0 0 100%;justify-content:center;overflow-x:auto;scrollbar-width:none}#tray>.sep:nth-of-type(2){display:none}#swatches{flex-wrap:wrap;justify-content:center}#tray.hide{transform:translate(-50%,calc(100% - 12px))}}
 .pop{box-sizing:border-box}
+.vh{position:fixed;left:-9999px;top:0;width:1px;height:1px;opacity:0}
+html,body{overscroll-behavior:none}
 @media (max-width:700px){#textBar .hint{display:none}}
 @media (max-width:640px){.hud.l{max-width:calc(100vw - 196px);overflow-x:auto;scrollbar-width:none}.hud.l .chip{flex:none}#tools{justify-content:flex-start}.tool{width:38px}.tool svg{width:28px}.sw{width:24px;height:24px}.bar h1{font-size:1.5rem}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
@@ -212,7 +214,7 @@ kbd{font-family:ui-monospace,Consolas,monospace;font-size:.8rem;background:var(-
   <div id="stage"><div id="cam"><div id="sheet"><canvas id="tpl"></canvas><canvas id="onion" hidden></canvas><canvas id="photo"></canvas><canvas id="fillc"></canvas><canvas id="ink"></canvas><canvas id="live"></canvas><img id="placing" alt="" hidden><canvas id="clip" hidden></canvas><textarea id="txtEd" hidden spellcheck="true" aria-label="Text"></textarea><div class="hdl" id="hScale" hidden title="Drag to resize" aria-label="Resize selection"></div><div class="hdl rot" id="hRot" hidden title="Drag to rotate (Shift snaps)" aria-label="Rotate selection"></div></div></div></div>
   <button class="edge l" id="prevBtn" aria-label="Previous page"><svg width="18" height="30" viewBox="0 0 18 30"><path d="M14 3 3 15l11 12" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg></button>
   <button class="edge r" id="nextBtn" aria-label="Next page"><svg width="18" height="30" viewBox="0 0 18 30"><path d="m4 3 11 12L4 27" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg></button>
-  <div class="hud l"><button class="chip" id="toJournal">‹ Pages</button><button class="chip" id="tplBtn" title="Paper style (T)">Plain</button><button class="chip" id="photoBtn" title="Add photos (P)">Add photo</button><button class="chip" id="onionBtn" title="Onion skin: see the previous page faintly (O)" aria-pressed="false">Onion</button><button class="chip" id="presentBtn" title="Present full screen with a laser pointer (F5)">Present</button><input type="file" id="photoFile" accept="image/*" multiple hidden></div>
+  <div class="hud l"><button class="chip" id="toJournal">‹ Pages</button><button class="chip" id="tplBtn" title="Paper style (T)">Plain</button><button class="chip" id="photoBtn" title="Add photos (P)">Add photo</button><button class="chip" id="onionBtn" title="Onion skin: see the previous page faintly (O)" aria-pressed="false">Onion</button><button class="chip" id="presentBtn" title="Present full screen with a laser pointer (F5)">Present</button><input type="file" id="photoFile" class="vh" accept="image/*" multiple tabindex="-1" aria-hidden="true"></div>
   <div class="hud c" id="cutBar" hidden><span class="chip">Drag to move · corner to resize · knob to rotate</span><button class="chip" id="cutDup">Duplicate</button><button class="chip" id="cutClip" title="Keep a copy in your Clips (S)">Save clip</button><button class="chip" id="cutDel">Delete</button><button class="chip on" id="cutDone">Done</button></div>
   <div class="hud c" id="textBar" hidden><button class="chip" data-st="title">Title</button><button class="chip" data-st="heading">Heading</button><button class="chip" data-st="body">Body</button><button class="chip" data-st="bullets">• Bullets</button><span class="chip hint">Tab or swipe to change</span><button class="chip on" id="textDone">Done</button></div>
   <div class="hud c" id="eraseBar" hidden><button class="chip" id="eraseAll">Clear this page</button><button class="chip" id="eraseClose">Cancel</button></div>
@@ -251,7 +253,7 @@ kbd{font-family:ui-monospace,Consolas,monospace;font-size:.8rem;background:var(-
 <div class="scrim" id="coverScrim" hidden><div class="card wide"><h2 id="coverTitle">Cover</h2>
 <div id="coverPick"><p class="sub" style="margin:0 0 12px">Pick a colour, or tap a style to open it and adjust it with sliders. Every pattern is drawn by Quire itself.</p>
 <div class="covergrid" id="coverGrid"></div>
-<div class="row"><button class="ghost" id="coverPhoto">Use a photo</button><input type="file" id="coverFile" accept="image/*" hidden><button class="ghost" id="coverShuffle">Shuffle previews</button><button class="btn" id="coverClose">Done</button></div></div>
+<div class="row"><button class="ghost" id="coverPhoto">Use a photo</button><input type="file" id="coverFile" class="vh" accept="image/*" tabindex="-1" aria-hidden="true"><button class="ghost" id="coverShuffle">Shuffle previews</button><button class="btn" id="coverClose">Done</button></div></div>
 <div id="coverEdit" hidden><div class="ced"><div class="cedprev"><canvas id="cedCv" width="300" height="400" aria-label="Cover preview"></canvas><strong id="cedName"></strong></div><div class="cedctl" id="cedCtl"></div></div>
 <div class="row"><button class="ghost" id="cedBack">All styles</button><button class="ghost" id="cedUndo" title="Undo (Ctrl+Z)">Undo</button><button class="ghost" id="cedRedo" title="Redo (Ctrl+Shift+Z)">Redo</button><button class="ghost" id="cedReset">Reset</button><button class="ghost" id="cedRandom">Surprise me</button><button class="ghost" id="cedSave">Save look</button><button class="btn" onclick="document.getElementById('coverClose').click()">Done</button></div></div>
 </div></div>
@@ -506,7 +508,10 @@ function widthFor(t,pr,v){
 }
 
 /* ---------- views ---------- */
-function show(v){for(const id of ['shelfView','journalView','pageView'])$(id).hidden=id!==v;closeMixer()}
+function show(v){for(const id of ['shelfView','journalView','pageView'])$(id).hidden=id!==v;closeMixer();if(v!=='shelfView'&&!(history.state&&history.state.q))try{history.pushState({q:1},'')}catch(e){}}
+/* Android back button / browser back: close the top-most thing, like Escape. Returns false when there is nothing left to close. */
+window.quireBack=()=>{const open=id=>!$(id).hidden;if(open('shelfView')&&!open('coverScrim')&&!open('helpScrim')&&!open('exportScrim')&&!open('playScrim'))return false;if(open('txtEd')){commitText();return true}dispatchEvent(new KeyboardEvent('keydown',{key:'Escape'}));return true};
+addEventListener('popstate',()=>{if(quireBack()&&$('shelfView').hidden)try{history.pushState({q:1},'')}catch(e){}});
 async function load(){
   journals=await get('journals')||[];
   if(!journals.length){const j={id:uid(),name:'Sketches',cover:COVERS[0],pages:[uid()],created:Date.now()};journals=[j];await put('journals',journals)}
@@ -795,7 +800,7 @@ $('coverShuffle').onclick=()=>{STYLES.forEach(([k])=>coverSeeds[k]=1+Math.floor(
 $('coverClose').onclick=()=>{$('coverScrim').hidden=true;coverSeeds={};if(coverFor){saveJournals();renderShelf()}};
 $('coverPhoto').onclick=()=>$('coverFile').click();
 window.quireCovers={STYLES,CS,drawCover};
-$('coverFile').onchange=e=>{const f=e.target.files[0];e.target.value='';if(!f||!coverFor)return;const u=URL.createObjectURL(f),im=new Image();im.onload=()=>{const c=document.createElement('canvas');c.width=300;c.height=400;const x=c.getContext('2d'),k=Math.max(300/im.width,400/im.height);x.drawImage(im,(300-im.width*k)/2,(400-im.height*k)/2,im.width*k,im.height*k);URL.revokeObjectURL(u);coverFor.art={img:c.toDataURL('image/jpeg',.85)};saveJournals();renderShelf();showCoverPick()};im.src=u};
+$('coverFile').onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!f||!coverFor)return;let im;try{im=await decodeImage(f)}catch(err){photoFail(f);return}const c=document.createElement('canvas');c.width=300;c.height=400;const x=c.getContext('2d'),k=Math.max(300/im.width,400/im.height);x.drawImage(im,(300-im.width*k)/2,(400-im.height*k)/2,im.width*k,im.height*k);if(im.close)im.close();coverFor.art={img:c.toDataURL('image/jpeg',.85)};saveJournals();renderShelf();showCoverPick()};
 function renderShelf(){
   const el=$('shelf');el.textContent='';
   journals.forEach((j)=>{
@@ -1159,7 +1164,7 @@ $('mixOk').onclick=()=>{swatches[mixFor]=mixVal();swIdx=mixFor;color=swatches[mi
 /* ---------- export, backup ---------- */
 let exportURL='';
 function exportPage(){const c=document.createElement('canvas');c.width=W*R;c.height=H*R;const x=c.getContext('2d');drawTemplate(x,c.width,c.height,(page&&page.tpl)||'plain',page&&page.bg);for(const L of LAYERS())x.drawImage(L,0,0);exportURL=c.toDataURL('image/png');$('exportImg').src=exportURL;$('exportScrim').hidden=false}
-function download(url,name){const a=document.createElement('a');a.href=url;a.download=name;document.body.append(a);a.click();a.remove()}
+function download(url,name){if(window.QuireAndroid){fetch(url).then(r=>r.blob()).then(b=>{const fr=new FileReader();fr.onload=()=>{const r=String(fr.result);QuireAndroid.save(name,b.type||'application/octet-stream',r.slice(r.indexOf(',')+1))};fr.readAsDataURL(b)}).catch(()=>toast('Couldn\'t save that file'));return}const a=document.createElement('a');a.href=url;a.download=name;document.body.append(a);a.click();a.remove()}
 $('exportBtn').onclick=exportPage;$('exportClose').onclick=()=>$('exportScrim').hidden=true;
 $('exportSave').onclick=()=>download(exportURL,(J?J.name:'page')+'-'+(pageIdx+1)+'.png');
 $('backupBtn').onclick=async()=>{const out={app:'quire',v:1,journals,pages:{},thumbs:{}};for(const j of journals)for(const p of j.pages){const d=await get('p:'+p);if(d)out.pages[p]=d;const t=await get('t:'+p);if(t)out.thumbs[p]=t}
@@ -1185,11 +1190,17 @@ $('tplClose').onclick=closeTplPop;
 $('tplSave').onclick=async()=>{const c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d');for(const L of LAYERS())x.drawImage(L,0,0,W,H);const id=uid(),n='My template '+(customTpls.length+1);await put('tplimg:'+id,c.toDataURL('image/png'));customTpls.push({id,name:n});lsSet('q.tpls',customTpls);renderTplPop();toast('Saved as "'+n+'". Pick it here on any page.')};
 /* photo collage: place, then commit as a stroke under the ink */
 $('photoBtn').onclick=()=>$('photoFile').click();
-$('photoFile').onchange=e=>{const fs=[...e.target.files].filter(f=>f.type.startsWith('image/'));e.target.value='';if(!fs.length)return;photoQueue=fs.slice(1);loadPhoto(fs[0]);if(fs.length>1)toast(fs.length+' photos: place each one, then the next appears')};
+$('photoFile').onchange=e=>{const fs=[...e.target.files];e.target.value='';takePhotos(fs)};
+addEventListener('paste',e=>{if($('pageView').hidden||document.activeElement===$('txtEd'))return;const fs=[...(e.clipboardData?.files||[])];if(fs.length){e.preventDefault();takePhotos(fs)}});
 addEventListener('paste',e=>{if($('pageView').hidden)return;const it=[...(e.clipboardData?.items||[])].find(i=>i.type.startsWith('image/'));if(it)loadPhoto(it.getAsFile())});
-stage.addEventListener('dragover',e=>e.preventDefault());stage.addEventListener('drop',e=>{e.preventDefault();const fs=[...e.dataTransfer.files].filter(f=>f.type.startsWith('image/'));if(!fs.length)return;photoQueue=fs.slice(1);loadPhoto(fs[0])});
-function loadPhoto(file){const u=URL.createObjectURL(file),im=new Image();im.onload=()=>{const k=Math.min(1,1600/Math.max(im.width,im.height));const c=document.createElement('canvas');c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);c.getContext('2d').drawImage(im,0,0,c.width,c.height);URL.revokeObjectURL(u);
-  startPlacing(c.toDataURL('image/jpeg',.85),c.width,c.height,'photo')};im.src=u}
+stage.addEventListener('dragover',e=>e.preventDefault());stage.addEventListener('drop',e=>{e.preventDefault();takePhotos(e.dataTransfer.files)});
+const isImg=f=>!!f&&(f.type.startsWith('image/')||(!f.type||f.type==='application/octet-stream')&&/\.(jpe?g|png|gif|webp|bmp|hei[cf]|avif)$/i.test(f.name||'')||(!f.type&&!f.name));
+function decodeImage(file){return new Promise((res,rej)=>{const viaImg=()=>{const u=URL.createObjectURL(file),im=new Image();im.onload=()=>{res(im);setTimeout(()=>URL.revokeObjectURL(u),0)};im.onerror=()=>{URL.revokeObjectURL(u);rej(new Error('decode'))};im.src=u};if(window.createImageBitmap)createImageBitmap(file).then(res,viaImg);else viaImg()})}
+function photoFail(file){toast(/hei[cf]/i.test((file.type||'')+(file.name||''))?'That photo is HEIC, which this device can\'t open. Pick a JPG or PNG.':'Couldn\'t open that photo. Try a JPG or PNG.')}
+async function loadPhoto(file){let im;try{im=await decodeImage(file)}catch(e){photoFail(file);const nx=photoQueue.shift();if(nx)loadPhoto(nx);return}
+  const k=Math.min(1,1600/Math.max(im.width,im.height));const c=document.createElement('canvas');c.width=Math.max(1,Math.round(im.width*k));c.height=Math.max(1,Math.round(im.height*k));c.getContext('2d').drawImage(im,0,0,c.width,c.height);if(im.close)im.close();
+  startPlacing(c.toDataURL('image/jpeg',.85),c.width,c.height,'photo')}
+function takePhotos(list){const fs=[...(list||[])].filter(isImg);if(!fs.length){if(list&&list.length)toast('That file isn\'t a photo');return}if(placing)endPlacing(false);photoQueue=fs.slice(1);loadPhoto(fs[0]);if(fs.length>1)toast(fs.length+' photos: place each one, then the next appears')}
 function startPlacing(src,w0,h0,layerName){const f=Math.min(1,W*.6/w0,H*.6/h0);placing={src,layer:layerName,w:w0*f,h:h0*f,x:(W-w0*f)/2,y:(H-h0*f)/2};const el=$('placing');el.src=src;el.hidden=false;$('placeBar').hidden=false;$('placeDone').textContent=layerName==='ink'?'Place clip':'Place photo';drawPlacing()}
 function drawPlacing(){const el=$('placing'),r=$('sheet').clientWidth/W;el.style.width=placing.w*r+'px';el.style.height=placing.h*r+'px';el.style.transform=`translate(${placing.x*r}px,${placing.y*r}px)`}
 function placeScale(k){if(!placing)return;const cx=placing.x+placing.w/2,cy=placing.y+placing.h/2;placing.w*=k;placing.h*=k;placing.x=cx-placing.w/2;placing.y=cy-placing.h/2;drawPlacing()}
