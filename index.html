@@ -64,6 +64,11 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
 #stage{position:absolute;inset:0;touch-action:none;overflow:hidden}
 #sheet{position:absolute;background:#fbfaf6;box-shadow:0 0 0 1px rgba(0,0,0,.04),0 20px 60px -30px rgba(0,0,0,.5);transform-origin:0 0;transition:transform .32s cubic-bezier(.2,.8,.3,1),opacity .32s}
 #sheet canvas{position:absolute;inset:0;width:100%;height:100%}
+#sheet .leaf{z-index:3;transform-origin:0 50%;backface-visibility:hidden;-webkit-backface-visibility:hidden;box-shadow:0 0 0 1px rgba(0,0,0,.05),0 10px 40px -10px rgba(0,0,0,.45);pointer-events:none}
+#sheet .leaf.under{z-index:2;box-shadow:none}
+#sheet .leaf.go{transition:transform .75s cubic-bezier(.35,.05,.2,1)}
+.leafShade{position:absolute;inset:0;z-index:2;pointer-events:none;background:linear-gradient(90deg,rgba(0,0,0,.28),rgba(0,0,0,.06) 40%,rgba(0,0,0,0));opacity:1;transition:opacity .75s ease}
+.leafShade.fade{opacity:0}.leafShade.fadein{opacity:.9}
 #sheet.turnL{transform:translateX(-30%) ;opacity:0}
 #sheet.turnR{transform:translateX(30%);opacity:0}
 .hud{position:absolute;top:calc(12px + env(safe-area-inset-top,0px));display:flex;gap:8px;align-items:center;z-index:5}
@@ -101,6 +106,8 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
 .ib svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .ib:disabled{opacity:.3}
 /* Rewind dial */
+#ring{position:absolute;left:0;top:0;border-radius:50%;border:1.5px solid rgba(34,33,42,.55);box-shadow:0 0 0 1px rgba(255,255,255,.7);pointer-events:none;z-index:6;transform:translate(-50%,-50%)}
+#stage.pen{cursor:none}
 #dial{position:absolute;width:120px;height:120px;margin:-60px 0 0 -60px;border-radius:50%;border:2px dashed rgba(34,33,42,.35);display:grid;place-items:center;pointer-events:none;z-index:7;font-family:var(--display);font-weight:700;font-size:1.4rem;color:#22212a;background:rgba(251,250,246,.6);backdrop-filter:blur(4px)}
 /* Popovers */
 .pop{position:absolute;z-index:9;background:var(--tray);color:var(--ink);border:1px solid var(--tray-edge);border-radius:16px;box-shadow:0 24px 60px -24px rgba(0,0,0,.5);padding:16px;display:flex;flex-direction:column;gap:12px}
@@ -159,6 +166,7 @@ kbd{font-family:ui-monospace,Consolas,monospace;font-size:.8rem;background:var(-
     <button class="ib" id="hideBtn" title="Hide tray (Tab)"><svg viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg></button>
   </div>
   <div id="dial" hidden></div>
+  <div id="ring" hidden></div>
   <div id="mixer" class="pop" hidden>
     <div class="pv" id="mixPv"></div>
     <label for="mh">Hue<input type="range" id="mh" min="0" max="360"></label>
@@ -190,6 +198,8 @@ kbd{font-family:ui-monospace,Consolas,monospace;font-size:.8rem;background:var(-
 <dt><kbd>T</kbd></dt><dd>Paper style: plain, lined, grid, dots</dd>
 <dt><kbd>P</kbd>, paste, drop a file</dt><dd>Add a photo under the ink</dd>
 <dt><kbd>C</kbd></dt><dd>Open the colour mixer</dd>
+<dt><kbd>F11</kbd></dt><dd>Full screen</dd>
+<dt>Huion pen</dt><dd>Pressure sets line weight; tilting the pen widens pencil and watercolour like the side of a lead or brush. Lower button: rewind dial. Eraser end: erases. Hovering shows the brush size.</dd>
 <dt><kbd>Tab</kbd>, swipe the tray</dt><dd>Hide or show the tray</dd>
 <dt><kbd>Esc</kbd>, pinch closed</dt><dd>Back to pages, then journals</dd>
 <dt><kbd>Ctrl</kbd>+<kbd>E</kbd></dt><dd>Export the page as an image</dd>
@@ -435,13 +445,14 @@ async function delPage(i){const id=J.pages[i];await del('p:'+id);await del('t:'+
 
 async function openPage(i,dir){
   if(sel)endSelection(true);
+  const old=dir&&!$('pageView').hidden&&!matchMedia('(prefers-reduced-motion: reduce)').matches?pageCanvas():null;
   await savePage();
   pageIdx=Math.max(0,Math.min(J.pages.length-1,i));
   const d=await get('p:'+J.pages[pageIdx]);
   page=d?{strokes:d.strokes,n:d.n,tpl:d.tpl}:{strokes:[],n:0,tpl:(J.tpl||'plain')};dirty=false;
   show('pageView');setZoom(1);layout();renderAll();paintTemplate();
   $('pageNo').textContent=(pageIdx+1)+' / '+J.pages.length;
-  const sh=$('sheet');if(dir){sh.style.transition='none';sh.classList.add(dir>0?'turnR':'turnL');sh.offsetWidth;sh.style.transition='';sh.classList.remove('turnL','turnR')}
+  if(old)flipLeaf(old,dir);
 }
 async function savePage(){
   if(!page||!J||!dirty)return;dirty=false;
@@ -450,6 +461,12 @@ async function savePage(){
   await put('p:'+id,snap);await put('t:'+id,t);
   if(pageIdx===0||!J.peek){J.peek=t;saveJournals()}
 }
+/* page flip: the old page turns away around the spine (next), or the new page swings back over it (previous) */
+function pageCanvas(){const r=$('sheet').getBoundingClientRect(),d=Math.min(2,devicePixelRatio||1),c=document.createElement('canvas');c.width=Math.max(1,Math.round(r.width*d));c.height=Math.max(1,Math.round(r.height*d));const x=c.getContext('2d');x.drawImage(tplC,0,0,c.width,c.height);for(const L of LAYERS())x.drawImage(L,0,0,c.width,c.height);c.className='leaf';return c}
+function flipLeaf(old,dir){const sh=$('sheet'),shade=document.createElement('div');shade.className='leafShade';
+  const done=els=>setTimeout(()=>els.forEach(e=>e.remove()),800);
+  if(dir>0){old.style.transform='perspective(2600px) rotateY(0deg)';sh.append(shade,old);old.offsetWidth;old.classList.add('go');old.style.transform='perspective(2600px) rotateY(-180deg)';shade.classList.add('fade');done([old,shade])}
+  else{const nw=pageCanvas();old.classList.add('under');nw.style.transform='perspective(2600px) rotateY(-180deg)';sh.append(old,shade,nw);nw.offsetWidth;nw.classList.add('go');nw.style.transform='perspective(2600px) rotateY(0deg)';shade.classList.add('fadein');done([old,nw,shade])}}
 function thumb(w,h){const c=document.createElement('canvas');c.width=w;c.height=h;const x=c.getContext('2d');drawTemplate(x,w,h,(page&&page.tpl)||'plain');for(const L of LAYERS())x.drawImage(L,0,0,w,h);return c.toDataURL('image/jpeg',.8)}
 function turn(d,noCreate){
   if(!J)return;const ni=pageIdx+d;
@@ -474,6 +491,7 @@ function toPage(e){const r=ink.getBoundingClientRect();return[(e.clientX-r.left)
 /* ---------- drawing input ---------- */
 let lastWash=0,pan=null,spaceDown=false,placing=null;const stage=$('stage');let cur=null,curId=null,last=null,raf=0;
 const touches=new Map();let gesture=null;let rewind=null;
+function tilt(e){if(e.pointerType!=='pen')return 0;if(typeof e.altitudeAngle==='number'&&e.altitudeAngle>0)return Math.max(0,Math.min(1,1-e.altitudeAngle/(Math.PI/2)));return Math.min(1,Math.hypot(e.tiltX||0,e.tiltY||0)/70)}
 function pressure(e){if(e.pointerType==='mouse')return .5;const p=e.pressure;return p>0?Math.min(1,p):.5}
 function beginStroke(e,force){
   const [x,y]=toPage(e);const pr=pressure(e);const tl=force||tool;
@@ -490,7 +508,7 @@ function extend(e){
     const [x,y]=toPage(ev);const dx=x-last.x,dy=y-last.y,dist=Math.hypot(dx,dy);
     if(dist<.8)continue;
     const dt=Math.max(1,ev.timeStamp-last.t);const v=dist/dt;
-    const tw=widthFor(cur.t,pressure(ev),v)*cur.k;const w=last.w+(tw-last.w)*(cur.t==='pen'?.35:.5);
+    const tl2=tilt(ev),tw=widthFor(cur.t,pressure(ev),v)*cur.k*((cur.t==='pencil'||cur.t==='wash'||cur.t==='blend')?1+tl2*(cur.t==='pencil'?2.6:.8):1);const w=last.w+(tw-last.w)*(cur.t==='pen'?.35:.5);
     cur.p.push(x,y,w);
     if(cur.t==='eraser'){const n=cur.p.length;drawStroke(ictx,{t:'eraser',p:cur.p.slice(n-6)})}
     last={x,y,t:ev.timeStamp,w};
@@ -520,7 +538,7 @@ function endStroke(){
 }
 function abortStroke(){if(!cur)return;const t=cur.t;cur=null;curId=null;lctx.save();lctx.setTransform(1,0,0,1,0,0);lctx.clearRect(0,0,live.width,live.height);lctx.restore();if(t==='eraser')renderAll()}
 
-stage.addEventListener('pointerdown',e=>{
+stage.addEventListener('pointerdown',e=>{$('ring').hidden=true;
   if(e.pointerType==='pen'&&!penSeen){penSeen=true;lsSet('q.pen',true)}
   if(e.pointerType==='touch'){
     touches.set(e.pointerId,{x:e.clientX,y:e.clientY,x0:e.clientX,y0:e.clientY});
@@ -537,7 +555,11 @@ stage.addEventListener('pointerdown',e=>{
   if(e.button!==0)return;
   stage.setPointerCapture(e.pointerId);beginStroke(e);
 });
-stage.addEventListener('pointermove',e=>{
+function ringAt(e){const r=$('ring');if((e.pointerType!=='pen'&&e.pointerType!=='mouse')||cur||sel||placing||e.buttons){r.hidden=true;return}
+  const st=stage.getBoundingClientRect(),sc=ink.getBoundingClientRect().width/W;const t=e.pointerType==='pen'&&(e.button===5||(e.buttons&32))?'eraser':tool;
+  const d=t==='fill'||t==='cut'?10:Math.max(4,widthFor(t,.5,0)*sizeK(t)/Math.pow(Z,.7)*sc);r.style.width=r.style.height=d+'px';r.style.left=(e.clientX-st.left)+'px';r.style.top=(e.clientY-st.top)+'px';r.hidden=false;stage.classList.toggle('pen',true)}
+stage.addEventListener('pointerleave',()=>{$('ring').hidden=true;stage.classList.remove('pen')});
+stage.addEventListener('pointermove',e=>{ringAt(e);
   if(e.pointerType==='touch'&&touches.has(e.pointerId)){const t=touches.get(e.pointerId);t.x=e.clientX;t.y=e.clientY;if(gesture){moveGesture();return}}
   if(pan&&e.pointerId===pan.id){if(Z>1){TX+=e.clientX-pan.x;TY+=e.clientY-pan.y;applyCam()}pan.x=e.clientX;pan.y=e.clientY;return}
   if(rewind&&e.pointerId===rewind.id){moveRewind(e);return}
@@ -687,6 +709,7 @@ function toast(m){const t=$('toast');t.textContent=m;t.hidden=false;t.style.opac
 addEventListener('keydown',e=>{
   if(e.target.tagName==='INPUT'&&e.target.type!=='range')return;
   if(!$('helpScrim').hidden||!$('exportScrim').hidden){if(e.key==='Escape'){$('helpScrim').hidden=true;$('exportScrim').hidden=true}return}
+  if(e.key==='F11'){e.preventDefault();try{document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen()}catch(err){}return}
   if(e.key==='?'){help();return}
   if(placing){if(e.key==='Enter')endPlacing(true);else if(e.key==='Escape')endPlacing(false);else if(e.key==='+'||e.key==='=')placeScale(1.1);else if(e.key==='-')placeScale(1/1.1);return}
   const onPage=!$('pageView').hidden,ctrl=e.ctrlKey||e.metaKey,k=e.key.toLowerCase();
